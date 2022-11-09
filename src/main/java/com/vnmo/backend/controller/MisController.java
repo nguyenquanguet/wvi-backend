@@ -58,4 +58,9 @@ public record MisController(MisService misService) {
                                               @RequestParam(required = false) Integer month) {
         return misService.findAllMisByApId(apId, tpId, indicatorId, year, month);
     }
+
+    @PutMapping("/approve/{apId}")
+    public ResponseEntity<?> approvedRequest(@PathVariable Integer apId){
+        return misService.approvedRequest(apId, true);
+    }
 }

@@ -101,4 +101,9 @@ public class MisServiceImpl implements MisService {
     public ResponseEntity<?> findAllMisByApId(Integer apId, Integer tpId, Integer indicatorId, Integer year, Integer month) {
         return response(misRepository.findAllMisByApId(apId, tpId, indicatorId, year, month));
     }
+
+    @Override
+    public ResponseEntity<?> approvedRequest(Integer request, Boolean isApproved) {
+        return response(true);
+    }
 }
