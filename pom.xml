@@ -18,7 +18,6 @@
 
     <properties>
         <java.version>17</java.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mysql.version>8.0.30</mysql.version>
         <mybatis.version>2.2.2</mybatis.version>
         <hutool.version>5.8.9</hutool.version>
@@ -83,8 +82,9 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.1</version>
                 <configuration>
                     <excludes>
                         <exclude>
@@ -94,7 +94,6 @@
                     </excludes>
                     <executable>true</executable>
                 </configuration>
-
             </plugin>
         </plugins>
     </build>
