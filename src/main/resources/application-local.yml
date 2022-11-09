@@ -1,0 +1,7 @@
+spring:
+  profiles: local
+  datasource:
+    url: jdbc:mysql://202.151.162.220:3306/mis
+    username: wvi
+    password: 1102
+    driver-class-name: com.mysql.cj.jdbc.Driver

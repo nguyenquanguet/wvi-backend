@@ -1,0 +1,21 @@
+spring:
+  profiles:
+    active: local
+  jpa:
+    open-in-view: true
+
+#Mybatis Configuration
+mybatis:
+  mapper-locations:
+    - "classpath:mapper/**/*Mapper.xml"
+  configuration:
+    map-underscore-to-camel-case: true
+
+logging:
+  level:
+    org:
+      hibernate:
+        type: trace
+
+server:
+  port: 8088

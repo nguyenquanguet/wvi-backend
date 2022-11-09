@@ -1,0 +1,27 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.vnmo.backend.mapper.AuthenticationMapper">
+
+    <resultMap id="userInfo" type="com.vnmo.backend.dto.LoginResponse">
+        <id property="userId" column="id"/>
+        <result property="username" column="username"/>
+        <result property="email" column="email"/>
+        <result property="userApId" column="user_app_id"/>
+        <result property="userApName" column="name" />
+    </resultMap>
+
+    <select id="findUser" resultMap="userInfo">
+        SELECT u.id, u.username, u.email, user_ap_id, ap.name FROM user u
+            LEFT JOIN ap ON ap.id = u.user_ap_id
+        WHERE username = #{username}
+          AND password = #{password}
+    </select>
+
+    <select id="findApIdUserByUsername" resultType="java.lang.Integer">
+        SELECT user_ap_id FROM user WHERE username = #{username}
+    </select>
+
+
+</mapper>

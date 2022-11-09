@@ -1,0 +1,80 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.vnmo.backend.mapper.MisMapper">
+
+    <insert id="createTarget" useGeneratedKeys="true" keyColumn="id">
+        INSERT INTO mis_data(ap_id, indicator_id, year, month, target, created_at, created_by, updated_at, updated_by)
+        VALUES (#{apId}, #{indicatorId}, #{year}, #{month}, #{target}, #{createdAt}, #{createdBy}, #{updatedAt}, #{updatedBy})
+    </insert>
+
+    <update id="updateMisData">
+        UPDATE mis_data SET actual_achieve = #{actualAchieve},
+                            boy_number = #{boyNumber},
+                            girl_number = #{girlNumber},
+                            male_number  = #{maleNumber},
+                            female_number = #{femaleNumber},
+                            mvc = #{mvc},
+                            rc = #{rc},
+                            updated_by = #{updatedBy},
+                            updated_at = #{updatedAt}
+        WHERE id = #{id}
+    </update>
+
+    <select id="findAllIndicator" resultType="com.vnmo.backend.domains.Indicator">
+        SELECT i.* FROM indicator i
+            LEFT JOIN ap_indicator ai on i.id = ai.indicator_id
+            LEFT JOIN tp t on i.tp_id = t.id
+        WHERE ai.ap_id = #{apId}
+        <if test="tpId != null">
+            AND i.tp_id = #{tpId}
+        </if>
+        ORDER BY i.id
+    </select>
+
+    <select id="findAllTpByApId" resultType="com.vnmo.backend.domains.Ap">
+        SELECT t.*
+        FROM tp t
+                 LEFT JOIN indicator i on t.id = i.tp_id
+                 LEFT JOIN ap_indicator ai on i.id = ai.indicator_id
+        WHERE ai.ap_id = #{apId}
+        ORDER BY t.id
+    </select>
+
+    <select id="findAllMisByApId" resultType="com.vnmo.backend.models.MisIndicator">
+        SELECT md.*, i.code AS indicator_code FROM mis_data md
+                 LEFT JOIN indicator i on md.indicator_id = i.id
+                 WHERE ap_id = #{apId} AND md.target &gt; 0
+        <if test="tpId != null">
+            AND i.tp_id = #{tpId}
+        </if>
+        <if test="indicatorId != null">
+            AND md.indicator_id = #{indicatorId}
+        </if>
+        <if test="year != null">
+            AND md.year = #{year}
+        </if>
+        ORDER BY md.id
+    </select>
+
+    <select id="existedByApId" resultType="java.lang.Integer">
+        SELECT EXISTS(SELECT 1 FROM ap WHERE id = #{apId})
+    </select>
+
+    <select id="existedByIndicatorId" resultType="java.lang.Integer">
+        SELECT EXISTS(SELECT 1 FROM indicator WHERE id = #{apId})
+    </select>
+
+    <select id="existedByIndicatorIdAndApId" resultType="java.lang.Integer">
+        SELECT EXISTS(SELECT 1 FROM ap_indicator WHERE ap_id = #{apId} AND indicator_id = #{indicatorId})
+    </select>
+
+    <select id="existedByMisId" resultType="java.lang.Integer">
+        SELECT EXISTS(SELECT 1 FROM mis_data WHERE id = #{id})
+
+    </select>
+    <select id="findApIdMisDataById" resultType="java.lang.Integer">
+        SELECT ap_id FROM mis_data WHERE id = #{id}
+    </select>
+</mapper>
