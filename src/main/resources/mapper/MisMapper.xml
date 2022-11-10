@@ -4,13 +4,30 @@
 
 <mapper namespace="com.vnmo.backend.mapper.MisMapper">
 
-    <insert id="createTarget" useGeneratedKeys="true" keyColumn="id">
-        INSERT INTO mis_data(ap_id, indicator_id, year, month, target, created_at, created_by, updated_at, updated_by)
-        VALUES (#{apId}, #{indicatorId}, #{year}, #{month}, #{target}, #{createdAt}, #{createdBy}, #{updatedAt}, #{updatedBy})
+    <insert id="createData" useGeneratedKeys="true" keyColumn="id">
+        INSERT INTO data(ap_id, indicator_code, unit_id, year, month, target, target_type, actual_achieve,
+                         boy_number, girl_number, male_number, female_number, mvc, rc, d1, d2, d3,
+                         created_at, created_by, updated_at, updated_by)
+        VALUES (#{apId}, #{indicatorCode}, #{unitId}, #{year}, #{month}, #{target}, #{targetType}, #{actualAchieve},
+                #{boyNumber}, #{girlNumber}, #{maleNumber}, #{femaleNumber}, #{mvc}, #{rc}, #{d1}, #{d2}, #{d3},
+                #{createdAt}, #{createdBy}, #{updatedAt}, #{updatedBy})
+    </insert>
+
+    <insert id="createDetail" useGeneratedKeys="true" keyColumn="id">
+        INSERT INTO detail(ap_id, indicator_code, unit_id, year, fy_target, fy_achieved, f6_target, l6_target,
+                           f6_achieved, l6_achieved, target_type, l6_boy, l6_girl, l6_male, l6_female, l6_mvc, l6_rc,
+                           f6_boy, f6_girl, f6_male, f6_female, f6_mvc, f6_rc, fy_boy, fy_girl, fy_male, fy_female,
+                           fy_mvc, fy_rc, f6_d1, f6_d2, f6_d3, l6_d1, l6_d2, l6_d3, fy_d1, fy_d2, fy_d3, created_at,
+                           created_by, updated_at, updated_by)
+        VALUES (#{apId}, #{indicatorCode}, #{unitId}, #{year}, #{fyTarget}, #{fyAchieved}, #{f6Target}, #{l6Target},
+                #{f6Achieved}, #{l6Achieved}, #{targetType}, #{l6Boy}, #{l6Girl}, #{l6Male}, #{l6Female}, #{l6Mvc}, #{l6Rc},
+                #{f6Boy}, #{f6Girl}, #{f6Male}, #{f6Female}, #{f6Mvc}, #{f6Rc}, #{fyBoy}, #{fyGirl}, #{fyMale}, #{fyFemale},
+                #{fyMvc}, #{fyRc}, #{f6D1}, #{f6D2}, #{f6D3},  #{l6D1}, #{l6D2}, #{l6D3}, #{fyD1}, #{fyD2}, #{fyD3}, #{createdAt},
+                #{createdBy}, #{updatedAt}, #{updatedBy})
     </insert>
 
     <update id="updateMisData">
-        UPDATE mis_data SET actual_achieve = #{actualAchieve},
+        UPDATE data SET actual_achieve = #{actualAchieve},
                             boy_number = #{boyNumber},
                             girl_number = #{girlNumber},
                             male_number  = #{maleNumber},
@@ -22,59 +39,100 @@
         WHERE id = #{id}
     </update>
 
+    <update id="updateDetail">
+        UPDATE detail SET fy_target = #{fyTarget},
+                          fy_achieved = #{fyAchieved},
+                          f6_target = #{f6Target},
+                          l6_target = #{l6Target},
+                          f6_achieved = #{f6Achieved},
+                          l6_boy = #{l6Boy},
+                          l6_girl = #{l6Girl},
+                          l6_male = #{l6Male},
+                          l6_female = #{l6Female},
+                          l6_mvc = #{l6Mvc},
+                          l6_rc = #{l6Rc},
+                          l6_d1 = #{l6D1},
+                          l6_d2 = #{l6D2},
+                          l6_d3 = #{l6D3},
+                          f6_boy = #{f6Boy},
+                          f6_girl = #{f6Girl},
+                          f6_male = #{f6Male},
+                          f6_female = #{f6Female},
+                          f6_mvc = #{f6Mvc},
+                          f6_rc = #{f6Rc},
+                          f6_d1 = #{f6D1},
+                          f6_d2 = #{f6D2},
+                          f6_d3 = #{f6D3},
+                          fy_boy = #{fyBoy},
+                          fy_girl = #{fyGirl},
+                          fy_male = #{fyMale},
+                          fy_female = #{fyFemale},
+                          fy_mvc = #{fyMvc},
+                          fy_rc = #{fyRc},
+                          fy_d1 = #{fyD1},
+                          fy_d2 = #{fyD2},
+                          fy_d3 = #{fyD3},
+                          updated_at = #{updatedAt},
+                          updated_by = #{updatedBy}
+        WHERE id = #{id}
+    </update>
+
+    <select id="existedData" resultType="java.lang.Integer">
+        SELECT EXISTS(SELECT 1 FROM data WHERE ap_id = #{apId}
+                                           AND indicator_code = #{indicatorCode}
+                                           AND year = #{year}
+                                           AND month = #{month})
+    </select>
+
     <select id="findAllIndicator" resultType="com.vnmo.backend.domains.Indicator">
         SELECT i.* FROM indicator i
-            LEFT JOIN ap_indicator ai on i.id = ai.indicator_id
             LEFT JOIN tp t on i.tp_id = t.id
-        WHERE ai.ap_id = #{apId}
         <if test="tpId != null">
-            AND i.tp_id = #{tpId}
+            WHERE i.tp_id = #{tpId}
         </if>
         ORDER BY i.id
     </select>
 
-    <select id="findAllTpByApId" resultType="com.vnmo.backend.domains.Ap">
-        SELECT t.*
-        FROM tp t
-                 LEFT JOIN indicator i on t.id = i.tp_id
-                 LEFT JOIN ap_indicator ai on i.id = ai.indicator_id
-        WHERE ai.ap_id = #{apId}
+    <select id="findAllTp" resultType="com.vnmo.backend.domains.Ap">
+        SELECT t.* FROM tp t
         ORDER BY t.id
     </select>
 
     <select id="findAllMisByApId" resultType="com.vnmo.backend.models.MisIndicator">
-        SELECT md.*, i.code AS indicator_code FROM mis_data md
-                 LEFT JOIN indicator i on md.indicator_id = i.id
-                 WHERE ap_id = #{apId} AND md.target &gt; 0
+        SELECT d.* FROM data d
+                 LEFT JOIN indicator i on d.indicator_code = i.code
+                 WHERE ap_id = #{apId} AND d.target &gt; 0
         <if test="tpId != null">
             AND i.tp_id = #{tpId}
         </if>
-        <if test="indicatorId != null">
-            AND md.indicator_id = #{indicatorId}
+        <if test="indicatorCode != null">
+            AND d.indicator_code = #{indicatorCode}
         </if>
         <if test="year != null">
-            AND md.year = #{year}
+            AND d.year = #{year}
         </if>
-        ORDER BY md.id
+        ORDER BY d.id
     </select>
 
     <select id="existedByApId" resultType="java.lang.Integer">
         SELECT EXISTS(SELECT 1 FROM ap WHERE id = #{apId})
     </select>
 
-    <select id="existedByIndicatorId" resultType="java.lang.Integer">
-        SELECT EXISTS(SELECT 1 FROM indicator WHERE id = #{apId})
-    </select>
-
-    <select id="existedByIndicatorIdAndApId" resultType="java.lang.Integer">
-        SELECT EXISTS(SELECT 1 FROM ap_indicator WHERE ap_id = #{apId} AND indicator_id = #{indicatorId})
+    <select id="existedByIndicatorCode" resultType="java.lang.Integer">
+        SELECT EXISTS(SELECT 1 FROM indicator WHERE code = #{indicatorCode})
     </select>
 
     <select id="existedByMisId" resultType="java.lang.Integer">
-        SELECT EXISTS(SELECT 1 FROM mis_data WHERE id = #{id})
+        SELECT EXISTS(SELECT 1 FROM data WHERE id = #{id})
 
     </select>
     <select id="findApIdMisDataById" resultType="java.lang.Integer">
-        SELECT ap_id FROM mis_data WHERE id = #{id}
+        SELECT ap_id FROM data WHERE id = #{id}
+    </select>
+    <select id="findIndicatorById" resultType="com.vnmo.backend.domains.Indicator">
+        SELECT * FROM indicator WHERE code = #{indicatorCode};
+    </select>
+    <select id="findDetail" resultType="com.vnmo.backend.domains.Detail">
+        SELECT * FROM detail WHERE ap_id = #{apId} AND indicator_code = #{indicatorCode} AND year = #{year}
     </select>
 </mapper>

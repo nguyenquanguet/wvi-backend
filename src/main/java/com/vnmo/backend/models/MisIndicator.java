@@ -16,17 +16,17 @@ public class MisIndicator {
 
     private Integer apId;
 
-    private Integer indicatorId;
-
     private String indicatorCode;
 
-    private String indicatorName;
+    private Integer unitId;
 
     private Integer year;
 
     private Integer month;
 
     private Integer target;
+
+    private Integer targetType;
 
     private Integer actualAchieve;
 
@@ -41,6 +41,12 @@ public class MisIndicator {
     private Integer mvc;
 
     private Integer rc;
+
+    private Integer d1;
+
+    private Integer d2;
+
+    private Integer d3;
 
     private Timestamp createdAt;
 
