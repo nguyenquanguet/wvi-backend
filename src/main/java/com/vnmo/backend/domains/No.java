@@ -1,29 +1,24 @@
 package com.vnmo.backend.domains;
 
-import lombok.*;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
-public class Indicator {
+@AllArgsConstructor
+@RequiredArgsConstructor
+public class No {
 
     private Integer id;
 
-    private Integer tpId;
-
-    private String code;
-
-    private Integer unitId;
-
-    private Integer targetType;
+    private String noName;
 
     private String description;
-
-    private String note;
 
     private Timestamp createdAt;
 

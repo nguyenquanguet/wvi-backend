@@ -9,19 +9,23 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @Getter
 @Setter
-public class MisData {
+public class Data {
 
     private Integer id;
 
     private Integer apId;
 
-    private Integer indicatorId;
+    private String indicatorCode;
+
+    private Integer unitId;
 
     private Integer year;
 
     private Integer month;
 
     private Integer target;
+
+    private Integer targetType;
 
     private Integer actualAchieve;
 
@@ -36,6 +40,14 @@ public class MisData {
     private Integer mvc;
 
     private Integer rc;
+
+    private Integer d1;
+
+    private Integer d2;
+
+    private Integer d3;
+
+    private Integer approved;
 
     private Timestamp createdAt;
 
