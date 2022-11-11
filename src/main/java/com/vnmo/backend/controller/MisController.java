@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.*;
 public record MisController(MisService misService) {
 
     @CrossOrigin
-    @GetMapping("/find-all-indicator-by-tp-id/")
-    public ResponseEntity<?> findAllIndicator(@RequestParam(required = false) Integer tpId) {
+    @GetMapping("/find-all-indicator-by-tp-id/{tpId}")
+    public ResponseEntity<?> findAllIndicator(@PathVariable Integer tpId) {
         return misService.findAllIndicator(tpId);
     }
 
