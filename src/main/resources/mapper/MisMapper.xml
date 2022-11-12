@@ -26,6 +26,11 @@
                 #{createdBy}, #{updatedAt}, #{updatedBy})
     </insert>
 
+    <insert id="createTarget">
+        INSERT INTO data(ap_id, indicator_code, unit_id, year, month, target, created_at, created_by, updated_at, updated_by)
+        VALUES (#{apId}, #{indicatorCode}, #{unitId}, #{year}, #{month},#{target}, #{createdAt}, #{createdBy}, #{updatedAt}, #{updatedBy})
+    </insert>
+
     <update id="updateMisData">
         UPDATE data SET actual_achieve = #{actualAchieve},
                             boy_number = #{boyNumber},

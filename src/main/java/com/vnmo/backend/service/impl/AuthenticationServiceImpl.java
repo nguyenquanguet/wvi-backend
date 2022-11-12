@@ -29,6 +29,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new BusinessException(ExceptionCode.ERROR_WRONG_PASSWORD);
         }
 
+        //to Lower Case username
+        String username = loginRequest.getUsername();
+        loginRequest.setUsername(username.toLowerCase());
+
         return response(authenticationRepository.findUser(loginRequest.getUsername(), loginRequest.getPassword()));
     }
 

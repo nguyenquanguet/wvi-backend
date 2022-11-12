@@ -5,6 +5,7 @@ import com.vnmo.backend.domains.Data;
 import com.vnmo.backend.domains.Detail;
 import com.vnmo.backend.domains.Indicator;
 import com.vnmo.backend.dto.CreateDataRequest;
+import com.vnmo.backend.dto.CreateTargetRequest;
 import com.vnmo.backend.dto.UpdateMisDataRequest;
 import com.vnmo.backend.exception.BusinessException;
 import com.vnmo.backend.exception.ExceptionCode;
@@ -102,7 +103,7 @@ public class MisServiceImpl implements MisService {
 
         createDataRequest.setUnitId(indicator.get().getUnitId());
         createDataRequest.setTargetType(indicator.get().getTargetType());
-        misRepository.createTarget(createDataRequest);
+        misRepository.createDataMis(createDataRequest);
 
         updateDetail(createDataRequest);
 
@@ -256,5 +257,11 @@ public class MisServiceImpl implements MisService {
     @Override
     public ResponseEntity<?> approvedRequest(Integer request, Boolean isApproved) {
         return response(true);
+    }
+
+    @Override
+    public ResponseEntity<?> createTarget(CreateTargetRequest createTargetRequest) {
+        misRepository.createTarget(createTargetRequest);
+        return response(RESPONSE_CODE_SUCCESS);
     }
 }

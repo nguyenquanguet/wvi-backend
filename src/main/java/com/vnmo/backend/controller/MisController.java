@@ -1,6 +1,7 @@
 package com.vnmo.backend.controller;
 
 import com.vnmo.backend.dto.CreateDataRequest;
+import com.vnmo.backend.dto.CreateTargetRequest;
 import com.vnmo.backend.dto.UpdateMisDataRequest;
 import com.vnmo.backend.exception.ValidationExceptionHandle;
 import com.vnmo.backend.service.MisService;
@@ -41,6 +42,14 @@ public record MisController(MisService misService) {
         return misService.updateMisData(request);
     }
 
+    @PostMapping("/create-target")
+     public ResponseEntity<?> createTarget(@RequestBody @Validated CreateTargetRequest createTargetRequest, BindingResult bindingResult){
+        if(bindingResult.hasErrors()){
+            throw new ValidationExceptionHandle(bindingResult);
+        }
+        return misService.createTarget(createTargetRequest);
+    }
+
     @GetMapping("/find-all-mis/{apId}")
     public ResponseEntity<?> findAllMisByApId(@PathVariable Integer apId,
                                               @RequestParam(required = false) Integer tpId,
@@ -49,9 +58,4 @@ public record MisController(MisService misService) {
                                               @RequestParam(required = false) Integer month) {
         return misService.findAllMisByApId(apId, tpId, indicatorCode, year, month);
     }
-
-//    @PutMapping("/approve/{apId}")
-//    public ResponseEntity<?> approvedRequest(@PathVariable Integer apId) {
-//        return misService.approvedRequest(apId, true);
-//    }
 }

@@ -5,6 +5,7 @@ import com.vnmo.backend.domains.Detail;
 import com.vnmo.backend.domains.Indicator;
 import com.vnmo.backend.domains.Data;
 import com.vnmo.backend.dto.CreateDataRequest;
+import com.vnmo.backend.dto.CreateTargetRequest;
 import com.vnmo.backend.mapper.MisMapper;
 import com.vnmo.backend.models.MisIndicator;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ public class MisRepository {
         return misMapper.updateMisData(data);
     }
 
-    public void createTarget(CreateDataRequest createDataRequest) {
+    public void createDataMis(CreateDataRequest createDataRequest) {
         misMapper.createData(createDataRequest);
     }
 
@@ -73,5 +74,9 @@ public class MisRepository {
 
     public int existedData(String indicatorCode, Integer apId, Integer year, Integer month) {
         return misMapper.existedData(indicatorCode, apId, year, month);
+    }
+
+    public void createTarget(CreateTargetRequest createTargetRequest) {
+        misMapper.createTarget(createTargetRequest);
     }
 }
