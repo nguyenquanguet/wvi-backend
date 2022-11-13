@@ -16,4 +16,8 @@ public class LoginResponse {
     private Integer userApId;
 
     private String userApName;
+
+    private Integer inputTarget;
+
+    private Integer year;
 }

@@ -13,8 +13,9 @@
     </resultMap>
 
     <select id="findUser" resultMap="userInfo">
-        SELECT u.id, u.username, u.email, user_ap_id, ap.name FROM user u
+        SELECT u.id, u.username, u.email, user_ap_id, ap.name, util.year, util.input_target FROM user u
             LEFT JOIN ap ON ap.id = u.user_ap_id
+            LEFT JOIN util ON util.id = 1
         WHERE username = #{username}
           AND password = #{password}
     </select>
