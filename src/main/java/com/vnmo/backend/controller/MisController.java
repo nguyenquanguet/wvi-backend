@@ -20,12 +20,14 @@ public record MisController(MisService misService) {
         return misService.findAllIndicator(tpId);
     }
 
+    @CrossOrigin
     @GetMapping("/find-all-tp/")
     public ResponseEntity<?> findAllTp() {
         return misService.findAllTp();
     }
 
 
+    @CrossOrigin
     @PostMapping("/create-data")
     public ResponseEntity<?> createData(@RequestBody @Validated CreateDataRequest createDataRequest, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -34,6 +36,7 @@ public record MisController(MisService misService) {
         return misService.createData(createDataRequest);
     }
 
+    @CrossOrigin
     @PutMapping("/update-mis")
     public ResponseEntity<?> updateMisData(@RequestBody @Validated UpdateMisDataRequest request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -42,6 +45,7 @@ public record MisController(MisService misService) {
         return misService.updateMisData(request);
     }
 
+    @CrossOrigin
     @PostMapping("/create-target")
      public ResponseEntity<?> createTarget(@RequestBody @Validated CreateTargetRequest createTargetRequest, BindingResult bindingResult){
         if(bindingResult.hasErrors()){
@@ -50,6 +54,7 @@ public record MisController(MisService misService) {
         return misService.createTarget(createTargetRequest);
     }
 
+    @CrossOrigin
     @GetMapping("/find-all-mis/{apId}")
     public ResponseEntity<?> findAllMisByApId(@PathVariable Integer apId,
                                               @RequestParam(required = false) Integer tpId,

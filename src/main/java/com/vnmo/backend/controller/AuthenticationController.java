@@ -15,6 +15,7 @@ public record AuthenticationController(AuthenticationService authenticationServi
         return authenticationService.login(loginRequest);
     }
 
+    @CrossOrigin
     @PostMapping("logout")
     public ResponseEntity<?> logout(@RequestBody LoginRequest loginRequest) {
         return authenticationService.login(loginRequest);
