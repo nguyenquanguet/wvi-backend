@@ -14,7 +14,8 @@ public enum ExceptionCode {
     ERROR_AP_NOT_HAVE_INDICATOR("406","error.ap.not.have.indicator" ),
     ERROR_MIS_DATA_NOT_FOUND("407", "error.mis.data.not.found"),
     ERROR_USER_NOT_HAVE_PERMISSION("403","error.user.not.have.permission" ),
-    ERROR_DATA_EXISTED("405", "error.data.existed" );
+    ERROR_DATA_EXISTED("405", "error.data.existed" ),
+    ERROR_UTIL_NOT_FOUND("404", "error.util.not.found" );
 
     private final String code;
     private final String message;
