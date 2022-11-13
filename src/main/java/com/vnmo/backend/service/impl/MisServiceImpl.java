@@ -9,6 +9,7 @@ import com.vnmo.backend.dto.CreateTargetRequest;
 import com.vnmo.backend.dto.UpdateMisDataRequest;
 import com.vnmo.backend.exception.BusinessException;
 import com.vnmo.backend.exception.ExceptionCode;
+import com.vnmo.backend.models.MisIndicator;
 import com.vnmo.backend.respository.AuthenticationRepository;
 import com.vnmo.backend.respository.MisRepository;
 import com.vnmo.backend.service.MisService;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Optional;
 
 import static com.vnmo.backend.constant.ConstantValue.RESPONSE_CODE_SUCCESS;
@@ -251,7 +253,38 @@ public class MisServiceImpl implements MisService {
 
     @Override
     public ResponseEntity<?> findAllMisByApId(Integer apId, Integer tpId, String indicatorCode, Integer year, Integer month) {
-        return response(misRepository.findAllMisByApId(apId, tpId, indicatorCode, year, month));
+        List<MisIndicator> misIndicators = misRepository.findAllMisByApId(apId, tpId, indicatorCode, year, month);
+
+        for(int i = 0; i<misIndicators.size(); i++){
+            if(misIndicators.get(i).getBoyNumber() == null){
+                misIndicators.get(i).setBoyNumber(0);
+            }
+            if(misIndicators.get(i).getGirlNumber() == null){
+                misIndicators.get(i).setGirlNumber(0);
+            }
+            if(misIndicators.get(i).getMaleNumber() == null){
+                misIndicators.get(i).setMaleNumber(0);
+            }
+            if(misIndicators.get(i).getFemaleNumber() == null){
+                misIndicators.get(i).setFemaleNumber(0);
+            }
+            if(misIndicators.get(i).getMvc() == null){
+                misIndicators.get(i).setMvc(0);
+            }
+            if(misIndicators.get(i).getRc() == null){
+                misIndicators.get(i).setRc(0);
+            }
+            if(misIndicators.get(i).getD1() == null){
+                misIndicators.get(i).setD1(0);
+            }
+            if(misIndicators.get(i).getD2() == null){
+                misIndicators.get(i).setD2(0);
+            }
+            if(misIndicators.get(i).getD3() == null){
+                misIndicators.get(i).setD3(0);
+            }
+        }
+        return response(misIndicators);
     }
 
     @Override
