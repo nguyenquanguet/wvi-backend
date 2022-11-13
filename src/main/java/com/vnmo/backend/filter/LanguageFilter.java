@@ -13,9 +13,11 @@ import java.util.Locale;
 
 public class LanguageFilter extends OncePerRequestFilter {
 
+    private static final String HEADER_LANGUAGE = "Accept-Language";
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String language = request.getHeader("Accept-Language");
+        String language = request.getHeader(HEADER_LANGUAGE);
         if (!StringUtils.isEmpty(language)) {
             LocaleContextHolder.setLocale(new Locale(language));
         }
