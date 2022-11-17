@@ -23,4 +23,6 @@ public class CreateTargetRequest extends BaseDomain {
     private Integer month;
 
     private Integer target;
+
+    private Integer targetType;
 }

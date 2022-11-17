@@ -34,8 +34,6 @@ public class CreateDataRequest extends BaseDomain {
     @Max(value = 2100, message = "Year is smaller than 2100 !")
     private Integer year;
 
-    @NotNull(message = "Input target")
-    @Min(value = 0, message = "Target is negative !")
     private Integer target;
 
     @NotNull(message = "Input target")

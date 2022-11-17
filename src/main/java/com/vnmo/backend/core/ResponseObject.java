@@ -31,7 +31,7 @@ public class ResponseObject<T> {
         return new ResponseObject<>(1, RESPONSE_SUCCESS, message, data);
     }
 
-    public static ResponseEntity<?> response(Object object){
+    public static ResponseEntity<?> response(Object object) {
         return ResponseEntity.ok(ResponseObject.of(object));
     }
 }

@@ -1,0 +1,39 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.vnmo.backend.mapper.ApIndicatorMapper">
+    <insert id="createDataApIndicator" useGeneratedKeys="true" keyColumn="id">
+        INSERT INTO ap_indicator(indicator_code, fy, ap_id, ap_name, target, achieved, f6_target, f6_achieved,
+                                 l6_target, l6_achieved, created_at, created_by, updated_at, updated_by)
+        VALUES (#{indicatorCode}, #{fy}, #{apId}, #{apName}, #{target}, #{achieved}, #{f6Target}, #{f6Achieved},
+                #{l6Target}, #{l6Achieved}, #{createdAt}, #{createdBy}, #{updatedAt}, #{updatedBy})
+    </insert>
+
+    <update id="updateDataApIndicator">
+        UPDATE ap_indicator
+        SET target    = #{target},
+            f6_target = #{f6Target},
+            l6_target = #{l6Target},
+            updated_at  = #{updatedAt},
+            updated_by  = #{updatedBy}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateApIndicator">
+        UPDATE ap_indicator
+        SET achieved    = #{achieved},
+            f6_achieved = #{f6Achieved},
+            l6_achieved = #{l6Achieved},
+            updated_at  = #{updatedAt},
+            updated_by  = #{updatedBy}
+        WHERE id = #{id}
+    </update>
+
+    <select id="findApIndicatorById" resultType="com.vnmo.backend.domains.ApIndicator">
+        SELECT *
+        FROM ap_indicator
+        WHERE ap_id = #{apId}
+          AND indicator_code = #{indicatorCode}
+    </select>
+</mapper>

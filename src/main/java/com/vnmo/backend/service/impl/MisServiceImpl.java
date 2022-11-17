@@ -1,6 +1,7 @@
 package com.vnmo.backend.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.vnmo.backend.domains.ApIndicator;
 import com.vnmo.backend.domains.Data;
 import com.vnmo.backend.domains.Detail;
 import com.vnmo.backend.domains.Indicator;
@@ -10,6 +11,7 @@ import com.vnmo.backend.dto.UpdateMisDataRequest;
 import com.vnmo.backend.exception.BusinessException;
 import com.vnmo.backend.exception.ExceptionCode;
 import com.vnmo.backend.models.MisIndicator;
+import com.vnmo.backend.respository.ApIndicatorRepository;
 import com.vnmo.backend.respository.AuthenticationRepository;
 import com.vnmo.backend.respository.MisRepository;
 import com.vnmo.backend.service.MisService;
@@ -32,6 +34,8 @@ public class MisServiceImpl implements MisService {
     private final MisRepository misRepository;
 
     private final AuthenticationRepository authenticationRepository;
+
+    private final ApIndicatorRepository apIndicatorRepository;
 
     @Override
     public ResponseEntity<?> findAllIndicator(Integer tpId) {
@@ -86,8 +90,8 @@ public class MisServiceImpl implements MisService {
         if (misRepository.existedByIndicatorCode(createDataRequest.getIndicatorCode()) != 1) {
             throw new BusinessException(ExceptionCode.ERROR_INDICATOR_ID_NOT_FOUND);
         }
-        if(misRepository.existedData(createDataRequest.getIndicatorCode(), createDataRequest.getApId(),
-                createDataRequest.getYear(), createDataRequest.getMonth()) == 1){
+        if (misRepository.existedData(createDataRequest.getIndicatorCode(), createDataRequest.getApId(),
+                createDataRequest.getYear(), createDataRequest.getMonth()) == 1) {
             throw new BusinessException(ExceptionCode.ERROR_DATA_EXISTED);
         }
 
@@ -98,19 +102,67 @@ public class MisServiceImpl implements MisService {
 
         Optional<Indicator> indicator = misRepository.findIndicatorByCode(createDataRequest.getIndicatorCode());
 
-
         if (indicator.isEmpty()) {
             throw new BusinessException(ExceptionCode.ERROR_INDICATOR_ID_NOT_FOUND);
         }
-
         createDataRequest.setUnitId(indicator.get().getUnitId());
         createDataRequest.setTargetType(indicator.get().getTargetType());
-        misRepository.createDataMis(createDataRequest);
 
+        if (misRepository.existedData(createDataRequest.getIndicatorCode(), createDataRequest.getApId(),
+                createDataRequest.getYear(), createDataRequest.getMonth()) == 1) {
+            misRepository.updateData(createDataRequest);
+        } else {
+            misRepository.createDataMis(createDataRequest);
+        }
         updateDetail(createDataRequest);
-
+        updateApIndicator(createDataRequest);
         return response(RESPONSE_CODE_SUCCESS);
     }
+
+    private void updateApIndicator(CreateDataRequest createDataRequest) {
+        Optional<String> apName = misRepository.findApNameByApId(createDataRequest.getApId());
+        if (apName.isEmpty()) {
+            throw new BusinessException(ExceptionCode.ERROR_AP_ID_NOT_FOUND);
+        }
+
+        ApIndicator apIndicator = new ApIndicator();
+        apIndicator.setApId(createDataRequest.getApId());
+        apIndicator.setFy(createDataRequest.getYear());
+        apIndicator.setIndicatorCode(createDataRequest.getIndicatorCode());
+        apIndicator.setApName(apName.get());
+
+        Optional<ApIndicator> apIndicatorOptional = apIndicatorRepository.findApIndicatorById(apIndicator);
+        if (apIndicatorOptional.isEmpty()) {
+            apIndicator.setTarget(0);
+            apIndicator.setF6Target(0);
+            apIndicator.setL6Target(0);
+            apIndicator.setAchieved(createDataRequest.getActualAchieve());
+            apIndicator.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+            apIndicator.setCreatedBy(createDataRequest.getUsername());
+            if (10 <= createDataRequest.getMonth() && createDataRequest.getMonth() <= 12
+                    || 1 <= createDataRequest.getMonth() && createDataRequest.getMonth() <= 3) {
+                apIndicator.setF6Achieved(createDataRequest.getActualAchieve());
+                apIndicator.setL6Achieved(0);
+            } else {
+                apIndicator.setL6Achieved(createDataRequest.getActualAchieve());
+                apIndicator.setF6Achieved(0);
+            }
+            apIndicatorRepository.createDataApIndicator(apIndicator);
+        } else {
+            BeanUtil.copyProperties(apIndicatorOptional.get(), apIndicator);
+            apIndicator.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+            apIndicator.setUpdatedBy(createDataRequest.getUsername());
+            apIndicator.setAchieved(apIndicatorOptional.get().getAchieved() + createDataRequest.getActualAchieve());
+            if (10 <= createDataRequest.getMonth() && createDataRequest.getMonth() <= 12
+                    || 1 <= createDataRequest.getMonth() && createDataRequest.getMonth() <= 3) {
+                apIndicator.setF6Achieved(apIndicatorOptional.get().getF6Achieved() + createDataRequest.getActualAchieve());
+            } else {
+                apIndicator.setL6Achieved(apIndicatorOptional.get().getL6Achieved() + createDataRequest.getActualAchieve());
+            }
+            apIndicatorRepository.updateApIndicator(apIndicator);
+        }
+    }
+
 
     private void updateDetail(CreateDataRequest createDataRequest) {
         Optional<Detail> detail = misRepository.findDetail(createDataRequest.getApId(),
@@ -118,16 +170,35 @@ public class MisServiceImpl implements MisService {
 
         if (detail.isEmpty()) {
             Detail createDetail = new Detail();
-
             createDetail.setApId(createDataRequest.getApId());
             createDetail.setIndicatorCode(createDataRequest.getIndicatorCode());
             createDetail.setUnitId(createDataRequest.getUnitId());
             createDetail.setYear(createDataRequest.getYear());
+            createDetail.setF6Achieved(0);
+            createDetail.setF6Boy(0);
+            createDetail.setF6Girl(0);
+            createDetail.setF6Male(0);
+            createDetail.setF6Female(0);
+            createDetail.setF6Mvc(0);
+            createDetail.setF6Rc(0);
+            createDetail.setF6D1(0);
+            createDetail.setF6D2(0);
+            createDetail.setF6D3(0);
+            createDetail.setL6Target(0);
+            createDetail.setL6Achieved(0);
+            createDetail.setL6Boy(0);
+            createDetail.setL6Girl(0);
+            createDetail.setL6Male(0);
+            createDetail.setL6Female(0);
+            createDetail.setL6Mvc(0);
+            createDetail.setL6Rc(0);
+            createDetail.setL6D1(0);
+            createDetail.setL6D2(0);
+            createDetail.setL6D3(0);
 
             if (10 <= createDataRequest.getMonth() && createDataRequest.getMonth() <= 12
-                    && 1 <= createDataRequest.getMonth() && createDataRequest.getMonth() <= 3) {
+                    || 1 <= createDataRequest.getMonth() && createDataRequest.getMonth() <= 3) {
 
-                createDetail.setF6Target(createDataRequest.getTarget());
                 createDetail.setF6Achieved(createDataRequest.getActualAchieve());
                 createDetail.setF6Boy(createDataRequest.getBoyNumber());
                 createDetail.setF6Girl(createDataRequest.getGirlNumber());
@@ -152,8 +223,6 @@ public class MisServiceImpl implements MisService {
                 createDetail.setL6D3(0);
 
             } else {
-
-                createDetail.setF6Target(0);
                 createDetail.setF6Achieved(0);
                 createDetail.setF6Boy(0);
                 createDetail.setF6Girl(0);
@@ -165,7 +234,6 @@ public class MisServiceImpl implements MisService {
                 createDetail.setF6D2(0);
                 createDetail.setF6D3(0);
 
-                createDetail.setL6Target(createDataRequest.getTarget());
                 createDetail.setL6Achieved(createDataRequest.getActualAchieve());
                 createDetail.setL6Boy(createDataRequest.getBoyNumber());
                 createDetail.setL6Girl(createDataRequest.getGirlNumber());
@@ -200,12 +268,10 @@ public class MisServiceImpl implements MisService {
         } else {
             Detail oldDetail = detail.get();
             Detail updateDetail = new Detail();
-
-            updateDetail.setId(oldDetail.getId());
+            BeanUtil.copyProperties(oldDetail, updateDetail);
 
             if (10 <= createDataRequest.getMonth() && createDataRequest.getMonth() <= 12
-                    && 1 <= createDataRequest.getMonth() && createDataRequest.getMonth() <= 3) {
-                updateDetail.setF6Target(createDataRequest.getTarget() + oldDetail.getF6Target());
+                    || 1 <= createDataRequest.getMonth() && createDataRequest.getMonth() <= 3) {
                 updateDetail.setF6Achieved(createDataRequest.getActualAchieve() + oldDetail.getF6Achieved());
                 updateDetail.setF6Boy(createDataRequest.getBoyNumber() + oldDetail.getF6Boy());
                 updateDetail.setF6Girl(createDataRequest.getGirlNumber() + oldDetail.getF6Girl());
@@ -217,7 +283,6 @@ public class MisServiceImpl implements MisService {
                 updateDetail.setF6D2(createDataRequest.getD2() + oldDetail.getF6D2());
                 updateDetail.setF6D3(createDataRequest.getD3() + oldDetail.getF6D3());
             } else {
-                updateDetail.setL6Target(createDataRequest.getTarget() + oldDetail.getL6Target());
                 updateDetail.setL6Achieved(createDataRequest.getActualAchieve() + oldDetail.getL6Achieved());
                 updateDetail.setL6Boy(createDataRequest.getBoyNumber() + oldDetail.getL6Boy());
                 updateDetail.setL6Girl(createDataRequest.getGirlNumber() + oldDetail.getL6Girl());
@@ -230,9 +295,7 @@ public class MisServiceImpl implements MisService {
                 updateDetail.setL6D3(createDataRequest.getD3() + oldDetail.getL6D3());
             }
 
-            updateDetail.setFyTarget(createDataRequest.getTarget() + oldDetail.getFyTarget());
             updateDetail.setFyAchieved(createDataRequest.getActualAchieve() + oldDetail.getFyAchieved());
-            updateDetail.setTargetType(createDataRequest.getTargetType() + oldDetail.getFyTarget());
             updateDetail.setFyBoy(createDataRequest.getBoyNumber() + oldDetail.getFyBoy());
             updateDetail.setFyGirl(createDataRequest.getGirlNumber() + oldDetail.getFyGirl());
             updateDetail.setFyMale(createDataRequest.getMaleNumber() + oldDetail.getFyMale());
@@ -255,32 +318,32 @@ public class MisServiceImpl implements MisService {
     public ResponseEntity<?> findAllMisByApId(Integer apId, Integer tpId, String indicatorCode, Integer year, Integer month) {
         List<MisIndicator> misIndicators = misRepository.findAllMisByApId(apId, tpId, indicatorCode, year, month);
 
-        for(int i = 0; i<misIndicators.size(); i++){
-            if(misIndicators.get(i).getBoyNumber() == null){
+        for (int i = 0; i < misIndicators.size(); i++) {
+            if (misIndicators.get(i).getBoyNumber() == null) {
                 misIndicators.get(i).setBoyNumber(0);
             }
-            if(misIndicators.get(i).getGirlNumber() == null){
+            if (misIndicators.get(i).getGirlNumber() == null) {
                 misIndicators.get(i).setGirlNumber(0);
             }
-            if(misIndicators.get(i).getMaleNumber() == null){
+            if (misIndicators.get(i).getMaleNumber() == null) {
                 misIndicators.get(i).setMaleNumber(0);
             }
-            if(misIndicators.get(i).getFemaleNumber() == null){
+            if (misIndicators.get(i).getFemaleNumber() == null) {
                 misIndicators.get(i).setFemaleNumber(0);
             }
-            if(misIndicators.get(i).getMvc() == null){
+            if (misIndicators.get(i).getMvc() == null) {
                 misIndicators.get(i).setMvc(0);
             }
-            if(misIndicators.get(i).getRc() == null){
+            if (misIndicators.get(i).getRc() == null) {
                 misIndicators.get(i).setRc(0);
             }
-            if(misIndicators.get(i).getD1() == null){
+            if (misIndicators.get(i).getD1() == null) {
                 misIndicators.get(i).setD1(0);
             }
-            if(misIndicators.get(i).getD2() == null){
+            if (misIndicators.get(i).getD2() == null) {
                 misIndicators.get(i).setD2(0);
             }
-            if(misIndicators.get(i).getD3() == null){
+            if (misIndicators.get(i).getD3() == null) {
                 misIndicators.get(i).setD3(0);
             }
         }
@@ -293,8 +356,125 @@ public class MisServiceImpl implements MisService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<?> createTarget(CreateTargetRequest createTargetRequest) {
-        misRepository.createTarget(createTargetRequest);
+
+        if (authenticationRepository.existedUsernameByUsername(createTargetRequest.getUsername()) != 1) {
+            throw new BusinessException(ExceptionCode.ERROR_USERNAME_NOT_FOUND);
+        }
+        if (misRepository.existedByApId(createTargetRequest.getApId()) != 1) {
+            throw new BusinessException(ExceptionCode.ERROR_AP_ID_NOT_FOUND);
+        }
+
+        if (misRepository.existedByIndicatorCode(createTargetRequest.getIndicatorCode()) != 1) {
+            throw new BusinessException(ExceptionCode.ERROR_INDICATOR_ID_NOT_FOUND);
+        }
+
+        Optional<String> apName = misRepository.findApNameByApId(createTargetRequest.getApId());
+        if (apName.isEmpty()) {
+            throw new BusinessException(ExceptionCode.ERROR_AP_ID_NOT_FOUND);
+        }
+
+        ApIndicator apIndicator = new ApIndicator();
+        apIndicator.setIndicatorCode(createTargetRequest.getIndicatorCode());
+        apIndicator.setFy(createTargetRequest.getYear());
+        apIndicator.setApId(createTargetRequest.getApId());
+        apIndicator.setApName(apName.get());
+
+        apIndicator.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+        apIndicator.setCreatedBy(createTargetRequest.getUsername());
+        apIndicator.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        apIndicator.setUpdatedBy(createTargetRequest.getUsername());
+
+        Optional<ApIndicator> apIndicatorOld = apIndicatorRepository.findApIndicatorById(apIndicator);
+
+        try {
+            //Target 1 month
+            if (createTargetRequest.getTargetType() == 1) {
+                misRepository.createTarget(createTargetRequest);
+                if (apIndicatorOld.isEmpty()) {
+                    apIndicator.setTarget(createTargetRequest.getTarget());
+                    if (10 <= createTargetRequest.getMonth() && createTargetRequest.getMonth() <= 12
+                            && 1 <= createTargetRequest.getMonth() && createTargetRequest.getMonth() <= 3) {
+                        apIndicator.setF6Target(createTargetRequest.getTarget());
+                    } else {
+                        apIndicator.setL6Target(createTargetRequest.getTarget());
+                    }
+                    apIndicatorRepository.createDataApIndicator(apIndicator);
+                } else {
+                    apIndicator.setId(apIndicatorOld.get().getId());
+                    apIndicator.setTarget(apIndicatorOld.get().getTarget() + createTargetRequest.getTarget());
+                    if (10 <= createTargetRequest.getMonth() && createTargetRequest.getMonth() <= 12
+                            && 1 <= createTargetRequest.getMonth() && createTargetRequest.getMonth() <= 3) {
+                        apIndicator.setF6Target(apIndicatorOld.get().getF6Target() + createTargetRequest.getTarget());
+                    } else {
+                        apIndicator.setL6Target(apIndicatorOld.get().getL6Target() + createTargetRequest.getTarget());
+                    }
+                    apIndicatorRepository.updateDataApIndicator(apIndicator);
+                }
+            }
+
+            //Target f6 month
+            if (createTargetRequest.getTargetType() == 2) {
+                for (int i = 1; i <= 3; i++) {
+                    createTargetRequest.setMonth(i);
+                    misRepository.createTarget(createTargetRequest);
+                }
+                for (int i = 10; i <= 12; i++) {
+                    createTargetRequest.setMonth(i);
+                    misRepository.createTarget(createTargetRequest);
+                }
+                if (apIndicatorOld.isEmpty()) {
+                    apIndicator.setTarget(createTargetRequest.getTarget());
+                    apIndicator.setF6Target(createTargetRequest.getTarget());
+                    apIndicatorRepository.createDataApIndicator(apIndicator);
+                } else {
+                    apIndicator.setId(apIndicatorOld.get().getId());
+                    if (apIndicatorOld.get().getF6Target() != null || apIndicatorOld.get().getF6Target() != 0) {
+                        throw new BusinessException(ExceptionCode.ERROR_AP_HAD_TARGET_F6_MONTH);
+                    }
+                    apIndicator.setTarget(createTargetRequest.getTarget() + apIndicatorOld.get().getTarget());
+                    apIndicator.setF6Target(createTargetRequest.getTarget());
+                    apIndicatorRepository.updateDataApIndicator(apIndicator);
+                }
+            }
+
+            // Target l6 month
+            if (createTargetRequest.getTargetType() == 3) {
+                for (int i = 4; i <= 9; i++) {
+                    createTargetRequest.setMonth(i);
+                    misRepository.createTarget(createTargetRequest);
+                }
+                if (apIndicatorOld.isEmpty()) {
+                    apIndicator.setTarget(createTargetRequest.getTarget());
+                    apIndicator.setL6Target(createTargetRequest.getTarget());
+                    apIndicatorRepository.createDataApIndicator(apIndicator);
+                } else {
+                    apIndicator.setId(apIndicatorOld.get().getId());
+                    if (apIndicatorOld.get().getL6Target() != null || apIndicatorOld.get().getL6Target() != 0) {
+                        throw new BusinessException(ExceptionCode.ERROR_AP_HAD_TARGET_L6_MONTH);
+                    }
+                    apIndicator.setTarget(apIndicatorOld.get().getTarget() + createTargetRequest.getTarget());
+                    apIndicator.setL6Target(createTargetRequest.getTarget());
+                    apIndicatorRepository.updateDataApIndicator(apIndicator);
+                }
+            }
+
+            if (createTargetRequest.getTargetType() == 4) {
+                for (int i = 1; i <= 12; i++) {
+                    createTargetRequest.setMonth(i);
+                    misRepository.createTarget(createTargetRequest);
+                }
+                if (apIndicatorOld.isEmpty()) {
+                    apIndicator.setTarget(createTargetRequest.getTarget());
+                    apIndicatorRepository.createDataApIndicator(apIndicator);
+                }
+            }
+
+
+        } catch (Exception e) {
+            throw new BusinessException(ExceptionCode.INTERNAL_SERVER_ERROR);
+        }
         return response(RESPONSE_CODE_SUCCESS);
     }
 }
