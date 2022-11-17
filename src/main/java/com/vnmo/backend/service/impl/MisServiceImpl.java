@@ -156,17 +156,26 @@ public class MisServiceImpl implements MisService {
             BeanUtil.copyProperties(apIndicatorOptional.get(), apIndicator);
             apIndicator.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
             apIndicator.setUpdatedBy(createDataRequest.getUsername());
-            apIndicator.setAchieved(apIndicatorOptional.get().getAchieved() + createDataRequest.getActualAchieve());
+            apIndicator.setAchieved(calAchieved(apIndicator.getIndicatorCode(), apIndicatorOptional.get().getAchieved(),createDataRequest.getActualAchieve()));
             if (10 <= createDataRequest.getMonth() && createDataRequest.getMonth() <= 12
                     || 1 <= createDataRequest.getMonth() && createDataRequest.getMonth() <= 3) {
-                apIndicator.setF6Achieved(apIndicatorOptional.get().getF6Achieved() + createDataRequest.getActualAchieve());
+                apIndicator.setF6Achieved(calAchieved(apIndicator.getIndicatorCode(), apIndicatorOptional.get().getF6Achieved(), createDataRequest.getActualAchieve()));
             } else {
-                apIndicator.setL6Achieved(apIndicatorOptional.get().getL6Achieved() + createDataRequest.getActualAchieve());
+                apIndicator.setL6Achieved(calAchieved(apIndicator.getIndicatorCode(),apIndicatorOptional.get().getL6Achieved(),createDataRequest.getActualAchieve()));
             }
             apIndicatorRepository.updateApIndicator(apIndicator);
         }
     }
 
+    private int calAchieved(String indicatorCode, int oldAchieved, int newAchieved) {
+        String lowerCode = indicatorCode.toLowerCase();
+        if (lowerCode.equals("li01") || lowerCode.equals("li02")
+                || lowerCode.equals("li06") || lowerCode.equals("li07")
+                || lowerCode.equals("li08") || lowerCode.equals("li09")) {
+            return newAchieved;
+        }
+        return oldAchieved + newAchieved;
+    }
 
     private void updateDetail(CreateDataRequest createDataRequest) {
         Optional<Detail> detail = misRepository.findDetail(createDataRequest.getApId(),
@@ -279,7 +288,7 @@ public class MisServiceImpl implements MisService {
 
             if (10 <= createDataRequest.getMonth() && createDataRequest.getMonth() <= 12
                     || 1 <= createDataRequest.getMonth() && createDataRequest.getMonth() <= 3) {
-                updateDetail.setF6Achieved(createDataRequest.getActualAchieve() + oldDetail.getF6Achieved());
+                updateDetail.setF6Achieved(calAchieved(createDataRequest.getIndicatorCode(),oldDetail.getF6Achieved(), createDataRequest.getActualAchieve()));
                 updateDetail.setF6Boy(createDataRequest.getBoyNumber() + oldDetail.getF6Boy());
                 updateDetail.setF6Girl(createDataRequest.getGirlNumber() + oldDetail.getF6Girl());
                 updateDetail.setF6Male(createDataRequest.getMaleNumber() + oldDetail.getF6Male());
@@ -290,7 +299,7 @@ public class MisServiceImpl implements MisService {
                 updateDetail.setF6D2(createDataRequest.getD2() + oldDetail.getF6D2());
                 updateDetail.setF6D3(createDataRequest.getD3() + oldDetail.getF6D3());
             } else {
-                updateDetail.setL6Achieved(createDataRequest.getActualAchieve() + oldDetail.getL6Achieved());
+                updateDetail.setL6Achieved(calAchieved(createDataRequest.getIndicatorCode(),oldDetail.getF6Achieved(), createDataRequest.getActualAchieve()));
                 updateDetail.setL6Boy(createDataRequest.getBoyNumber() + oldDetail.getL6Boy());
                 updateDetail.setL6Girl(createDataRequest.getGirlNumber() + oldDetail.getL6Girl());
                 updateDetail.setL6Male(createDataRequest.getMaleNumber() + oldDetail.getL6Male());
@@ -302,7 +311,7 @@ public class MisServiceImpl implements MisService {
                 updateDetail.setL6D3(createDataRequest.getD3() + oldDetail.getL6D3());
             }
 
-            updateDetail.setFyAchieved(createDataRequest.getActualAchieve() + oldDetail.getFyAchieved());
+            updateDetail.setFyAchieved(calAchieved(createDataRequest.getIndicatorCode(),oldDetail.getF6Achieved(), createDataRequest.getActualAchieve()));
             updateDetail.setFyBoy(createDataRequest.getBoyNumber() + oldDetail.getFyBoy());
             updateDetail.setFyGirl(createDataRequest.getGirlNumber() + oldDetail.getFyGirl());
             updateDetail.setFyMale(createDataRequest.getMaleNumber() + oldDetail.getFyMale());
@@ -361,6 +370,7 @@ public class MisServiceImpl implements MisService {
     public ResponseEntity<?> approvedRequest(Integer request, Boolean isApproved) {
         return response(true);
     }
+
 
     @Override
     @Transactional
