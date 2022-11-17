@@ -80,16 +80,7 @@ public class MisServiceImpl implements MisService {
     @Override
     @Transactional
     public ResponseEntity<?> createData(CreateDataRequest createDataRequest) {
-        if (authenticationRepository.existedUsernameByUsername(createDataRequest.getUsername()) != 1) {
-            throw new BusinessException(ExceptionCode.ERROR_USERNAME_NOT_FOUND);
-        }
-        if (misRepository.existedByApId(createDataRequest.getApId()) != 1) {
-            throw new BusinessException(ExceptionCode.ERROR_AP_ID_NOT_FOUND);
-        }
-
-        if (misRepository.existedByIndicatorCode(createDataRequest.getIndicatorCode()) != 1) {
-            throw new BusinessException(ExceptionCode.ERROR_INDICATOR_ID_NOT_FOUND);
-        }
+        validate(createDataRequest.getUsername(), createDataRequest.getApId(), createDataRequest.getIndicatorCode());
         if (misRepository.existedData(createDataRequest.getIndicatorCode(), createDataRequest.getApId(),
                 createDataRequest.getYear(), createDataRequest.getMonth()) == 1) {
             throw new BusinessException(ExceptionCode.ERROR_DATA_EXISTED);
@@ -117,6 +108,19 @@ public class MisServiceImpl implements MisService {
         updateDetail(createDataRequest);
         updateApIndicator(createDataRequest);
         return response(RESPONSE_CODE_SUCCESS);
+    }
+
+    private void validate(String username, Integer apId, String indicatorCode) {
+        if (authenticationRepository.existedUsernameByUsername(username) != 1) {
+            throw new BusinessException(ExceptionCode.ERROR_USERNAME_NOT_FOUND);
+        }
+        if (misRepository.existedByApId(apId) != 1) {
+            throw new BusinessException(ExceptionCode.ERROR_AP_ID_NOT_FOUND);
+        }
+
+        if (misRepository.existedByIndicatorCode(indicatorCode) != 1) {
+            throw new BusinessException(ExceptionCode.ERROR_INDICATOR_ID_NOT_FOUND);
+        }
     }
 
     private void updateApIndicator(CreateDataRequest createDataRequest) {
@@ -170,6 +174,9 @@ public class MisServiceImpl implements MisService {
 
         if (detail.isEmpty()) {
             Detail createDetail = new Detail();
+            createDetail.setFyTarget(0);
+            createDetail.setL6Target(0);
+            createDetail.setF6Target(0);
             createDetail.setApId(createDataRequest.getApId());
             createDetail.setIndicatorCode(createDataRequest.getIndicatorCode());
             createDetail.setUnitId(createDataRequest.getUnitId());
@@ -318,33 +325,33 @@ public class MisServiceImpl implements MisService {
     public ResponseEntity<?> findAllMisByApId(Integer apId, Integer tpId, String indicatorCode, Integer year, Integer month) {
         List<MisIndicator> misIndicators = misRepository.findAllMisByApId(apId, tpId, indicatorCode, year, month);
 
-        for (int i = 0; i < misIndicators.size(); i++) {
-            if (misIndicators.get(i).getBoyNumber() == null) {
-                misIndicators.get(i).setBoyNumber(0);
+        for (MisIndicator misIndicator : misIndicators) {
+            if (misIndicator.getBoyNumber() == null) {
+                misIndicator.setBoyNumber(0);
             }
-            if (misIndicators.get(i).getGirlNumber() == null) {
-                misIndicators.get(i).setGirlNumber(0);
+            if (misIndicator.getGirlNumber() == null) {
+                misIndicator.setGirlNumber(0);
             }
-            if (misIndicators.get(i).getMaleNumber() == null) {
-                misIndicators.get(i).setMaleNumber(0);
+            if (misIndicator.getMaleNumber() == null) {
+                misIndicator.setMaleNumber(0);
             }
-            if (misIndicators.get(i).getFemaleNumber() == null) {
-                misIndicators.get(i).setFemaleNumber(0);
+            if (misIndicator.getFemaleNumber() == null) {
+                misIndicator.setFemaleNumber(0);
             }
-            if (misIndicators.get(i).getMvc() == null) {
-                misIndicators.get(i).setMvc(0);
+            if (misIndicator.getMvc() == null) {
+                misIndicator.setMvc(0);
             }
-            if (misIndicators.get(i).getRc() == null) {
-                misIndicators.get(i).setRc(0);
+            if (misIndicator.getRc() == null) {
+                misIndicator.setRc(0);
             }
-            if (misIndicators.get(i).getD1() == null) {
-                misIndicators.get(i).setD1(0);
+            if (misIndicator.getD1() == null) {
+                misIndicator.setD1(0);
             }
-            if (misIndicators.get(i).getD2() == null) {
-                misIndicators.get(i).setD2(0);
+            if (misIndicator.getD2() == null) {
+                misIndicator.setD2(0);
             }
-            if (misIndicators.get(i).getD3() == null) {
-                misIndicators.get(i).setD3(0);
+            if (misIndicator.getD3() == null) {
+                misIndicator.setD3(0);
             }
         }
         return response(misIndicators);
@@ -359,16 +366,7 @@ public class MisServiceImpl implements MisService {
     @Transactional
     public ResponseEntity<?> createTarget(CreateTargetRequest createTargetRequest) {
 
-        if (authenticationRepository.existedUsernameByUsername(createTargetRequest.getUsername()) != 1) {
-            throw new BusinessException(ExceptionCode.ERROR_USERNAME_NOT_FOUND);
-        }
-        if (misRepository.existedByApId(createTargetRequest.getApId()) != 1) {
-            throw new BusinessException(ExceptionCode.ERROR_AP_ID_NOT_FOUND);
-        }
-
-        if (misRepository.existedByIndicatorCode(createTargetRequest.getIndicatorCode()) != 1) {
-            throw new BusinessException(ExceptionCode.ERROR_INDICATOR_ID_NOT_FOUND);
-        }
+        validate(createTargetRequest.getUsername(), createTargetRequest.getApId(), createTargetRequest.getIndicatorCode());
 
         Optional<String> apName = misRepository.findApNameByApId(createTargetRequest.getApId());
         if (apName.isEmpty()) {
@@ -470,8 +468,6 @@ public class MisServiceImpl implements MisService {
                     apIndicatorRepository.createDataApIndicator(apIndicator);
                 }
             }
-
-
         } catch (Exception e) {
             throw new BusinessException(ExceptionCode.INTERNAL_SERVER_ERROR);
         }
