@@ -15,7 +15,10 @@ public enum ExceptionCode {
     ERROR_MIS_DATA_NOT_FOUND("407", "error.mis.data.not.found"),
     ERROR_USER_NOT_HAVE_PERMISSION("403","error.user.not.have.permission" ),
     ERROR_DATA_EXISTED("405", "error.data.existed" ),
-    ERROR_UTIL_NOT_FOUND("404", "error.util.not.found" );
+
+    ERROR_UTIL_NOT_FOUND("404", "error.util.not.found" ),
+    ERROR_AP_HAD_TARGET_F6_MONTH("408", "error.ap.had.target.f6.month" ),
+    ERROR_AP_HAD_TARGET_L6_MONTH("409", "error.ap.had.target.l6.month");
 
     private final String code;
     private final String message;

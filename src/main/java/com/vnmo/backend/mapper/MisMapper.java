@@ -44,4 +44,8 @@ public interface MisMapper {
     Integer existedData(String indicatorCode, Integer apId, Integer year, Integer month);
 
     void createTarget(CreateTargetRequest createTargetRequest);
+
+    Optional<String> findApNameByApId(Integer apId);
+
+    void updateData(CreateDataRequest createDataRequest);
 }

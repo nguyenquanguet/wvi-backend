@@ -79,4 +79,12 @@ public class MisRepository {
     public void createTarget(CreateTargetRequest createTargetRequest) {
         misMapper.createTarget(createTargetRequest);
     }
+
+    public Optional<String> findApNameByApId(Integer apId) {
+        return misMapper.findApNameByApId(apId);
+    }
+
+    public void updateData(CreateDataRequest createDataRequest) {
+        misMapper.updateData(createDataRequest);
+    }
 }

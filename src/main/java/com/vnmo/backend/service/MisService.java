@@ -16,6 +16,7 @@ public interface MisService {
     ResponseEntity<?> createData(CreateDataRequest createDataRequest);
 
     ResponseEntity<?> findAllMisByApId(Integer apId, Integer tpId, String indicatorCode, Integer year, Integer month);
+
     ResponseEntity<?> approvedRequest(Integer request, Boolean isApproved);
 
     ResponseEntity<?> createTarget(CreateTargetRequest createTargetRequest);
