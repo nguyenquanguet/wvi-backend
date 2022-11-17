@@ -130,7 +130,7 @@
     <select id="findAllMisByApId" resultType="com.vnmo.backend.models.MisIndicator">
         SELECT d.* FROM data d
         LEFT JOIN indicator i on d.indicator_code = i.code
-        WHERE ap_id = #{apId} AND d.target &gt; 0
+        WHERE ap_id = #{apId}
         <if test="tpId != null">
             AND i.tp_id = #{tpId}
         </if>
